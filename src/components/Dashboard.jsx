@@ -7,9 +7,7 @@ import { useSelector } from "react-redux";
 const Dashboard = () => {
   return (
     <div className="mt-[5vw]">
-      <div className="">
-        <Displaycards />
-      </div>
+      
       <div className="h-[60vh] w-full flex text-[2vw]">
         <div className="h-full w-1/2 flex flex-col justify-center items-center px-10">
           <h1>Employee.</h1>

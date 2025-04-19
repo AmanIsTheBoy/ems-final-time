@@ -9,7 +9,8 @@ import { db } from "../connection/firebase";
 import useAuthStore from "../Store/AuthStore";
 
 const ApplyLeave = () => {
-  const {userEmail} = useAuthStore();
+  const userEmail = localStorage.getItem("userEmail")
+  
   const [formData, setFormData] = useState({
     leaveType: "",
     fromDate: "",

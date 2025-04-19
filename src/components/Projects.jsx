@@ -1,16 +1,19 @@
 // frontend/components/Projects.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../connection/firebase";
 
 const Projects = ({ employeeId }) => {
-  const [projects, setProjects] = useState([]); // Set initial state to null
+  const [projects, setProjects] = useState(); // Set initial state to null
   const [loading, setLoading] = useState(true); // Add a loading state
- 
+  const userEmail = localStorage.getItem("userEmail")
 
   // Fetch project data for the specific employee
   const fetchProjects = async () => {
     try {
-       
+      const userData =  await getDoc(doc(db,"employee",userEmail))
+      setProjects(userData.data().Project)
     } catch (error) {
       console.error("Error fetching projects:", error);
     } finally {
@@ -29,62 +32,8 @@ const Projects = ({ employeeId }) => {
 
   // Render the component after projects are fetched
   return (
-    <div className="container">
-      <h2 className="mt-4">Assigned Projects</h2>
-      <div className="row">
-        {projects.length === 0 ? (
-          <p>No projects assigned for this employee.</p>
-        ) : (
-          projects.map((project) => (
-            <div className="col-md-4 mb-4" key={project._id}>
-              <div className="card col-12 h-100">
-                <div
-                  className={`card-header d-flex align-items-center justify-content-between ${project.priority.toLowerCase()}`}
-                >
-                  <h5 className="card-title my-1">{project.projectName.toUpperCase()}</h5>
-                  <span
-                    className={`badge ${
-                      project.status === "active"
-                        ? "bg-success"
-                        : "bg-secondary"
-                    }`}
-                  >
-                    {project.status}
-                  </span>
-                </div>
-                <div className="card-body">
-                  <p className="card-text">{project.description}</p>
-                  <p>
-                    <strong>Priority: </strong> {project.priority}
-                  </p>
-                  <p>
-                    <strong>Start Date: </strong>{" "}
-                    {new Date(project.startDate).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <strong>End Date: </strong>{" "}
-                    {new Date(project.endDate).toLocaleDateString()}
-                  </p>
-                </div>
-                <div className="card-footer h-50">
-                  <p className="mb-1">
-                    <strong>Assigned By:</strong>{" "}
-                    {project.assignedBy?.name || "N/A"}
-                  </p>
-                  <p className="mb-1">
-                    <strong>Assigned Employees:</strong>{" "}
-                    <ul className="ps-3 my-2">
-                      {project.assignedEmployees.map((emp) => (
-                        <li className="">{emp.name}</li>
-                      ))}
-                    </ul>
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+    <div className="w-full min-h-[100vh] mt-30 px-4">
+         <h1>hello {userEmail.split("@")[0]} , have you assigned this project,{projects}</h1>
     </div>
   );
 };

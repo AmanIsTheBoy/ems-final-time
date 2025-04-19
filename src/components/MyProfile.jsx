@@ -18,7 +18,7 @@ function EmployeeForm() {
       if (!userEmail) return;
 
       try {
-        const docRef = doc(db, "users", userEmail);
+        const docRef = doc(db, "employee", userEmail);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
@@ -49,7 +49,7 @@ function EmployeeForm() {
     if (!userEmail) return;
 
     try {
-      await setDoc(doc(db, "employee", userEmail), employeeData);
+      await updateDoc(doc(db, "employee", userEmail), employeeData);
       setEditing(false);
     }
      catch (error) {
@@ -104,7 +104,6 @@ function EmployeeForm() {
               { label: "First Name", key: "firstName" },
               { label: "Last Name", key: "lastName" },
               { label: "Phone", key: "phone" },
-              { label: "Email", key: "email", type: "email" },
             ].map(({ label, key, type }, index) => (
               <div key={index}>
                 <label className="block text-gray-700 font-medium mb-1">
@@ -116,7 +115,7 @@ function EmployeeForm() {
                   onChange={(e) =>
                     handleInputChange(key, e.target.value)
                   }
-                  readOnly={!editing}
+                 
                   className={`w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 ${
                     editing
                       ? "bg-white border-gray-300 focus:ring-blue-500"

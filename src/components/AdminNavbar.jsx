@@ -138,12 +138,6 @@ const AdminNavbar = () => {
               </Link>
             </li>
             <li>
-              <Link to="/myprofile" className="flex items-center space-x-3">
-                <img src={profile24} alt="My Profile" className="w-6 h-6" />
-                <span>My Profile</span>
-              </Link>
-            </li>
-            <li>
               <Link to="/Employees" className="flex items-center space-x-3">
                 <img src={employeesIcon} alt="Employees" className="w-6 h-6" />
                 <span>Employees</span>

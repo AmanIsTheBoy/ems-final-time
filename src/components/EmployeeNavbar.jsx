@@ -85,7 +85,7 @@ const EmployeeNavbar = () => {
   if (loading) {
     return (
       <div className="w-full text-center py-10">
-       thth
+        thth
       </div>
     );
   }
@@ -131,12 +131,6 @@ const EmployeeNavbar = () => {
               <Link to="/dashboard" className="flex items-center space-x-3">
                 <img src={dashboardIcon} alt="Dashboard" className="w-6 h-6" />
                 <span>Dashboard</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/myprofile" className="flex items-center space-x-3">
-                <img src={profile24} alt="My Profile" className="w-6 h-6" />
-                <span>My Profile</span>
               </Link>
             </li>
             <li>
