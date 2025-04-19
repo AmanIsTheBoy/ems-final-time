@@ -40,18 +40,13 @@ const Signup = () => {
 
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-      await updateProfile(userCredential.user, {
-        displayName: username,
-      });
-
-      // Use timeout to make sure toast appears at the right time
       setTimeout(() => {
         toast.success("User registered successfully. Please login.", {
           position: "top-right",
           autoClose: 5000,
           theme: "colored",
         });
-      }, 100);
+      }, 500);
 
       resetForm();
     } catch (error) {

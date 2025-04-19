@@ -49,11 +49,13 @@ function EmployeeForm() {
     if (!userEmail) return;
 
     try {
-      await setDoc(doc(db, "users", userEmail), employeeData);
+      await setDoc(doc(db, "employee", userEmail), employeeData);
       setEditing(false);
-    } catch (error) {
+    }
+     catch (error) {
       console.error("Error saving data:", error);
     }
+
   };
 
   return (
