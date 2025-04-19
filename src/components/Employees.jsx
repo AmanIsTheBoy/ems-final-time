@@ -24,7 +24,7 @@ const Employees = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const snapshot = await getDocs(collection(db, "employee"));
+        const snapshot = await getDocs(collection(db, "admin"));
         const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
         setUsers(data);
       } catch (error) {

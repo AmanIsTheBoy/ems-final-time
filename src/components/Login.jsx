@@ -38,6 +38,7 @@ const Login = () => {
       );
       const user = userCredential.user;
       setUserEmail(user.email);
+      localStorage.setItem("userEmail",user.email)
 
       toast.success("Login successful", {
         position: "top-right",

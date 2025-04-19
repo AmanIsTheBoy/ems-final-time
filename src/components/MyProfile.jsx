@@ -7,7 +7,11 @@ function EmployeeForm() {
   
   const [employeeData, setEmployeeData] = useState({});
   const [editing, setEditing] = useState(false);
-  const { userEmail } = useAuthStore();
+  var { userEmail } = useAuthStore();
+  
+  if (!userEmail) {
+    userEmail = localStorage.getItem("userEmail")
+  }
 
   useEffect(() => {
     const fetchEmployee = async () => {

@@ -2,8 +2,9 @@ import * as Yup from "yup";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import { getAuth, createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-import {auth} from "../connection/firebase"; // Your Firebase initialization file
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../connection/firebase";
+
 import emailicon from "../assets/email.png";
 import passwordicon from "../assets/password.png";
 import usernameicon from "../assets/username.png";
@@ -22,9 +23,7 @@ const Signup = () => {
       .min(3, "Username must be at least 3 characters")
       .max(20, "Username cannot be more than 20 characters")
       .required("Username is required"),
-    email: Yup.string()
-      .email("Invalid email")
-      .required("Email is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
     password: Yup.string()
       .min(6, "Password must be at least 6 characters")
       .matches(/[A-Z]/, "Must contain at least one uppercase letter")
@@ -39,19 +38,20 @@ const Signup = () => {
     try {
       const { email, password, username } = values;
 
-      // Create user with email & password
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-      // Update display name
       await updateProfile(userCredential.user, {
         displayName: username,
       });
 
-      toast.success("User registered successfully. Please login.", {
-        position: "top-right",
-        autoClose: 5000,
-        theme: "colored",
-      });
+      // Use timeout to make sure toast appears at the right time
+      setTimeout(() => {
+        toast.success("User registered successfully. Please login.", {
+          position: "top-right",
+          autoClose: 5000,
+          theme: "colored",
+        });
+      }, 100);
 
       resetForm();
     } catch (error) {
@@ -77,6 +77,8 @@ const Signup = () => {
         {/* Username */}
         <div className="mb-4 mt-10">
           <label htmlFor="username" className="flex items-center gap-2 mb-1">
+            <img src={usernameicon} alt="username" className="w-4 h-4" />
+            Username
           </label>
           <Field
             type="text"
@@ -90,7 +92,8 @@ const Signup = () => {
         {/* Email */}
         <div className="mb-4">
           <label htmlFor="email" className="flex items-center gap-2 mb-1">
-           
+            <img src={emailicon} alt="email" className="w-4 h-4" />
+            Email
           </label>
           <Field
             type="email"
@@ -104,7 +107,8 @@ const Signup = () => {
         {/* Password */}
         <div className="mb-4">
           <label htmlFor="password" className="flex items-center gap-2 mb-1">
-           
+            <img src={passwordicon} alt="password" className="w-4 h-4" />
+            Password
           </label>
           <Field
             type="password"

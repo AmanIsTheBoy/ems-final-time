@@ -5,7 +5,11 @@ import { db } from "../connection/firebase";
 import useAuthStore from "../Store/AuthStore";
 
 const LeaveRecords = () => {
-  const { userEmail } = useAuthStore();
+  var { userEmail } = useAuthStore();
+  
+  if (!userEmail) {
+    userEmail = localStorage.getItem("userEmail")
+  }
   const [leaveRecords, setLeaveRecords] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [recordsPerPage] = useState(5);
@@ -70,7 +74,7 @@ const LeaveRecords = () => {
   // Case-insensitive color map
   const statusColor = {
     pending: "bg-yellow-300 text-yellow-800",
-    approved: "bg-green-300 text-green-800",
+    accepted: "bg-green-300 text-green-800",
     rejected: "bg-red-300 text-red-800",
     cancelled: "bg-gray-300 text-gray-800",
   };

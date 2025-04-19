@@ -5,10 +5,14 @@ import EmployeeNavbar from "./EmployeeNavbar";
 import useAuthStore from "../Store/AuthStore";
 
 const Sidebar = () => {
-   const{userEmail} = useAuthStore();
+  var { userEmail } = useAuthStore();
+  
+  if (!userEmail) {
+    userEmail = localStorage.getItem("userEmail")
+  }
   return (
     <>
-     {userEmail.includes("@admin.com") ? <AdminNavbar/> : <EmployeeNavbar/>}
+      {userEmail.includes("@admin.com") ? <AdminNavbar /> : <EmployeeNavbar />}
       <Outlet />
     </>
   );
