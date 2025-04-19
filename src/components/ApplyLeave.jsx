@@ -1,185 +1,186 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import LeaveRecords from "./LeaveRecords";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { db } from "../connection/firebase";
+import useAuthStore from "../Store/AuthStore";
 
 const ApplyLeave = () => {
-  const axiosBaseURL = "https://employee-management-server-f7k2.onrender.com/api";
+  const { userEmail } = useAuthStore();
 
-  const initialValues = {
+  const [formData, setFormData] = useState({
     leaveType: "",
     fromDate: "",
     toDate: "",
     reason: "",
-  };
+  });
+
+  const initialValues = { ...formData };
 
   const validationSchema = Yup.object().shape({
-    leaveType: Yup.string().required("type of leave required"),
-    reason: Yup.string().required("reason for leave required"),
-    fromDate: Yup.date().required("from date required"),
-    toDate: Yup.date().required("to date required"),
+    leaveType: Yup.string().required("Type of leave is required"),
+    fromDate: Yup.date()
+      .required("From date is required")
+      .typeError("Enter a valid date"),
+    toDate: Yup.date()
+      .required("To date is required")
+      .typeError("Enter a valid date")
+      .min(Yup.ref("fromDate"), "To date cannot be before From date"),
+    reason: Yup.string()
+      .required("Reason for leave is required")
+      .min(10, "Reason must be at least 10 characters")
+      .max(500, "Reason cannot exceed 500 characters"),
   });
 
   const handleSubmit = async (values, { resetForm }) => {
+    const record = {
+      leaveType: values.leaveType,
+      startDate: values.fromDate,
+      endDate: values.toDate,
+      reason: values.reason,
+      appliedAt: new Date().toISOString(),
+    };
+
     try {
-      const options = {
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          "Content-Type": "application/json",
-        }
-      };
-      const data = {
-        "startDate": values.fromDate,
-        "endDate": values.toDate,
-        "leaveType": values.leaveType,
-        "reason": values.reason
-      }
-      const response = await axios.post(
-        `${axiosBaseURL}/user/attendance/applyleave`,
-        data,
-        options
-      );
-      if (response.status == 200) {
-        toast.success("Leave Applied Successfully", {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
-        resetForm();
-      } else {
-        toast.error(response.data.message, {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        });
-      }
-    } catch (error) {
-      toast.error(error.message, {
+      const userDocRef = doc(db, "employee", userEmail);
+      const adminDocRef = doc(db, "admin", userEmail);
+      await updateDoc(userDocRef, {
+        leaveRecords: arrayUnion(record),
+      });
+      await updateDoc(adminDocRef, {
+        leaveRecords: arrayUnion(record),
+      });
+
+      toast.success("Leave Applied Successfully", {
         position: "top-right",
         autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
         theme: "colored",
       });
-      console.log(error);
+
+      resetForm();
+      setFormData({ leaveType: "", fromDate: "", toDate: "", reason: "" });
+    } catch (error) {
+      console.error("Error updating leave records:", error);
+      toast.error("Failed to apply leave. Please try again.", {
+        position: "top-right",
+        autoClose: 5000,
+        theme: "colored",
+      });
     }
   };
 
+  useEffect(() => {
+    // no-op: keep formData in sync if needed
+  }, [formData]);
+
   return (
-    <>
-      <div className="container px-4 my-5 d-md-flex">
-        <div className="col col-md-6 col-lg-4">
-          <p className="px-2 mb-4 fw-bold text-center">Applying Leave</p>
-          <Formik
-            initialValues={initialValues}
-            validationSchema={validationSchema}
-            onSubmit={handleSubmit}
-          >
-            <Form className="d-flex flex-column align-items-start justidy-content-center p-2">
-              <div className="mb-4 col-12">
-                <label htmlFor="leaveType" className="col-12 col-sm-4">
-                  Leave type
-                </label>
-                <Field
-                  as="select"
-                  name="leaveType"
-                  className="rounded border border-secondary p-2 col-12"
-                >
-                  <option
-                    value=""
-                    className="text-muted"
-                    disabled
-                    defaultValue
-                    hidden
+    <div className="w-full mx-auto px-4 py-8 my-30 flex flex-col items-center justify-center md:flex-row gap-8">
+      <ToastContainer />
+
+      <div className="md:w-1/3 bg-white shadow-md rounded-lg p-6  shadow-lg shadow-black ">
+        <h2 className="text-xl font-semibold mb-4 text-center">Apply Leave</h2>
+        <Formik
+          enableReinitialize
+          initialValues={initialValues}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ values }) => {
+            useEffect(() => {
+              setFormData(values);
+            }, [values]);
+
+            return (
+              <Form className="flex flex-col space-y-4">
+                <div>
+                  <label htmlFor="leaveType" className="block mb-1 font-medium">
+                    Leave Type
+                  </label>
+                  <Field
+                    as="select"
+                    name="leaveType"
+                    className="w-full border border-gray-300 rounded p-2"
                   >
-                    select an option
-                  </option>
-                  <option value="WFH">Work From Home</option>
-                  <option value="On Duty">On Duty</option>
-                  <option value="Privilege">Privilege</option>
-                  <option value="Casual">Casual Leave</option>
-                  <option value="Maternity">Maternity Leave</option>
-                </Field>
-                <ErrorMessage
-                  name="leaveType"
-                  component="span"
-                  className="text-danger"
-                ></ErrorMessage>
-              </div>
-              <div className="mb-4 col-12">
-                <label htmlFor="fromDate" className="col-12 col-sm-4">
-                  From date
-                </label>
-                <Field
-                  type="date"
-                  name="fromDate"
-                  className="rounded border border-secondary p-2 col-12"
-                ></Field>
-                <ErrorMessage
-                  name="fromDate"
-                  component="span"
-                  className="text-danger"
-                ></ErrorMessage>
-              </div>
-              <div className="mb-4 col-12">
-                <label htmlFor="toDate" className="col-12 col-sm-4">
-                  To date
-                </label>
-                <Field
-                  type="date"
-                  name="toDate"
-                  className="rounded border border-secondary p-2 col-12"
-                ></Field>
-                <ErrorMessage
-                  name="toDate"
-                  component="span"
-                  className="text-danger"
-                ></ErrorMessage>
-              </div>
-              <div className="mb-2 col-12">
-                <label htmlFor="reason">Reason</label>
-                <Field
-                  as="textarea"
-                  name="reason"
-                  className="rounded border border-secondary p-2 col-12"
-                ></Field>
-                <ErrorMessage
-                  name="reason"
-                  component="span"
-                  className="text-danger"
-                ></ErrorMessage>
-              </div>
-              <button
-                className="mb-1 btn btn-custom col-4 align-self-center"
-                type="submit"
-              >
-                Apply
-              </button>
-            </Form>
-          </Formik>
-        </div>
-        <div className="col col-md-6 col-lg-8">
-          <p className="fw-bold fs-5 mb-0 text-center">LEAVE RECORDS</p>
-          <LeaveRecords />
-        </div>
+                    <option value="" disabled hidden>
+                      Select an option
+                    </option>
+                    <option value="WFH">Work From Home</option>
+                    <option value="On Duty">On Duty</option>
+                    <option value="Privilege">Privilege</option>
+                    <option value="Casual">Casual Leave</option>
+                    <option value="Maternity">Maternity Leave</option>
+                  </Field>
+                  <ErrorMessage
+                    name="leaveType"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="fromDate" className="block mb-1 font-medium">
+                    From Date
+                  </label>
+                  <Field
+                    type="date"
+                    name="fromDate"
+                    className="w-full border border-gray-300 rounded p-2"
+                  />
+                  <ErrorMessage
+                    name="fromDate"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="toDate" className="block mb-1 font-medium">
+                    To Date
+                  </label>
+                  <Field
+                    type="date"
+                    name="toDate"
+                    className="w-full border border-gray-300 rounded p-2"
+                  />
+                  <ErrorMessage
+                    name="toDate"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="reason" className="block mb-1 font-medium">
+                    Reason
+                  </label>
+                  <Field
+                    as="textarea"
+                    name="reason"
+                    rows={3}
+                    className="w-full border border-gray-300 rounded p-2"
+                  />
+                  <ErrorMessage
+                    name="reason"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="self-center bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg px-6 py-2 transition"
+                >
+                  Apply
+                </button>
+              </Form>
+            );
+          }}
+        </Formik>
       </div>
-    </>
+    </div>
   );
 };
 

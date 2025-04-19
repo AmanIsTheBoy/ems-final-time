@@ -71,6 +71,7 @@ const AddEmployee = () => {
         phone: values.phone,
         address: values.address.trim(),
         Project: values.Project.trim(),
+        records:[{}]
       });
 
       await setDoc(doc(db, "employee", values.email.trim()), {
