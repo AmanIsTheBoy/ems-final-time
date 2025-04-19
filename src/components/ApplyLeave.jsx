@@ -9,8 +9,7 @@ import { db } from "../connection/firebase";
 import useAuthStore from "../Store/AuthStore";
 
 const ApplyLeave = () => {
-  const { userEmail } = useAuthStore();
-
+  const {userEmail} = useAuthStore();
   const [formData, setFormData] = useState({
     leaveType: "",
     fromDate: "",
@@ -41,17 +40,18 @@ const ApplyLeave = () => {
       startDate: values.fromDate,
       endDate: values.toDate,
       reason: values.reason,
+      status: "pending",
       appliedAt: new Date().toISOString(),
     };
 
     try {
       const userDocRef = doc(db, "employee", userEmail);
-      const adminDocRef = doc(db, "admin", userEmail);
       await updateDoc(userDocRef, {
         leaveRecords: arrayUnion(record),
       });
+      const adminDocRef = doc(db, "admin", userEmail);
       await updateDoc(adminDocRef, {
-        leaveRecords: arrayUnion(record),
+        leave : record,
       });
 
       toast.success("Leave Applied Successfully", {
@@ -77,10 +77,9 @@ const ApplyLeave = () => {
   }, [formData]);
 
   return (
-    <div className="w-full mx-auto px-4 py-8 my-30 flex flex-col items-center justify-center md:flex-row gap-8">
+    <div className="w-full  items-center justify-center mx-auto px-4 py-8 my-30 flex flex-col md:flex-row gap-8">
       <ToastContainer />
-
-      <div className="md:w-1/3 bg-white shadow-md rounded-lg p-6  shadow-lg shadow-black ">
+      <div className="md:w-1/3 bg-white shadow-md rounded-lg p-6 shadow-lg shadow-black">
         <h2 className="text-xl font-semibold mb-4 text-center">Apply Leave</h2>
         <Formik
           enableReinitialize
@@ -94,7 +93,7 @@ const ApplyLeave = () => {
             }, [values]);
 
             return (
-              <Form className="flex flex-col space-y-4">
+              <Form className="flex flex-col space-y-4 ">
                 <div>
                   <label htmlFor="leaveType" className="block mb-1 font-medium">
                     Leave Type
