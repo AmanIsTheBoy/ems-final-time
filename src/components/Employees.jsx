@@ -209,22 +209,35 @@ const Employees = () => {
                 </button>
                 {openLeave.includes(user.id) && (
                   <div className="px-8 py-4 bg-gray-50 space-y-4">
-                    {
-                        <div className="border p-4 bg-white rounded">
-                          <p><strong>Type:</strong> {records?.leaveType}</p>
-                          <p><strong>From:</strong> {records?.startDate}</p>
-                          <p><strong>To:</strong> {records?.endDate}</p>
-                          <p><strong>Reason:</strong> {records?.reason}</p>
-                          <p><strong>Applied At:</strong> {records?.appliedAt ? new Date(records?.appliedAt).toLocaleString() : "N/A"}</p>
-                          <p><strong>Status:</strong> {records?.status}</p>
-                          <div className="mt-2 flex gap-x-5">
-                            <button onClick={() => handleAction(user.id, records, "accept")} className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700">Accept</button>
-                            <button onClick={() => handleAction(user.id, records, "reject")} className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700">Reject</button>
-                          </div>
+                    {records && records.leaveType ? (
+                      <div className="border p-4 bg-white rounded">
+                        <p><strong>Type:</strong> {records.leaveType}</p>
+                        <p><strong>From:</strong> {records.startDate}</p>
+                        <p><strong>To:</strong> {records.endDate}</p>
+                        <p><strong>Reason:</strong> {records.reason}</p>
+                        <p><strong>Applied At:</strong> {records.appliedAt ? new Date(records.appliedAt).toLocaleString() : "N/A"}</p>
+                        <p><strong>Status:</strong> {records.status}</p>
+                        <div className="mt-2 flex gap-x-5">
+                          <button
+                            onClick={() => handleAction(user.id, records, "accept")}
+                            className="bg-green-600 text-white px-4 py-1 rounded hover:bg-green-700"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => handleAction(user.id, records, "reject")}
+                            className="bg-red-600 text-white px-4 py-1 rounded hover:bg-red-700"
+                          >
+                            Reject
+                          </button>
                         </div>
-                    }
+                      </div>
+                    ) : (
+                      <div className="text-gray-500 italic">No current leave request</div>
+                    )}
                   </div>
                 )}
+
               </div>
             )}
           </div>
